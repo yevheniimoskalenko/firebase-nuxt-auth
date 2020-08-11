@@ -50,7 +50,25 @@ export default {
   /*
    ** Nuxt.js modules
    */
-  modules: [],
+  modules: [
+    [
+      '@nuxtjs/firebase',
+      {
+        config: {
+          apiKey: 'AIzaSyBHLhG3QUuyBCUf4P0Ea6zNmIDNQppyGGI',
+          authDomain: 'fir-auth-nuxt-77c05.firebaseapp.com',
+          databaseURL: 'https://fir-auth-nuxt-77c05.firebaseio.com',
+          projectId: 'fir-auth-nuxt-77c05',
+          storageBucket: 'fir-auth-nuxt-77c05.appspot.com',
+          messagingSenderId: '869018040991',
+          appId: '1:869018040991:web:6ea69d1eb44ab08d9580aa',
+        },
+        services: {
+          auth: true, // Just as example. Can be any other service.
+        },
+      },
+    ],
+  ],
   /*
    ** Build configuration
    ** See https://nuxtjs.org/api/configuration-build/

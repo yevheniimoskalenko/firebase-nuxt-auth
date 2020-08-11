@@ -64,13 +64,31 @@ export default {
   },
   methods: {
     create() {
-      this.$refs.form.validate((valid) => {
+      this.$refs.form.validate(async (valid) => {
         if (valid) {
-          // eslint-disable-next-line
           const form = {
             email: this.form.email,
             password: this.form.password,
             confirm: this.form.confirm,
+          }
+          try {
+            await this.$fireAuth
+              .createUserWithEmailAndPassword(form.email, form.password)
+              .then((result) => {
+                this.$message({
+                  message: `User was created`,
+                  type: 'success',
+                })
+              })
+              .catch((e) => {
+                this.$message({
+                  message: `${e.message}`,
+                  type: 'warning',
+                })
+              })
+          } catch (e) {
+            // eslint-disable-next-line
+            console.log(e)
           }
         } else {
           // eslint-disable-next-line
