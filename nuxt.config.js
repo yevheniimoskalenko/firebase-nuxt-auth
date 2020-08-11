@@ -64,7 +64,14 @@ export default {
           appId: '1:869018040991:web:6ea69d1eb44ab08d9580aa',
         },
         services: {
-          auth: true, // Just as example. Can be any other service.
+          auth: true,
+          firestore: true,
+          functions: true,
+          storage: true,
+          realtimeDb: true,
+          messaging: true,
+          performance: true,
+          remoteConfig: true,
         },
       },
     ],

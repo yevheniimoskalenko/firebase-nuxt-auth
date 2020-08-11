@@ -3,7 +3,27 @@
     <Nuxt />
   </div>
 </template>
-
+<script>
+import Cookies from 'js-cookie'
+export default {
+  mounted() {
+    this.setupFireBase()
+  },
+  methods: {
+    setupFireBase() {
+      this.$fireAuth.onAuthStateChanged((user) => {
+        if (user) {
+          this.$fireAuth.currentUser.getIdToken(true).then((token) => {
+            Cookies.set('access_token', token)
+          })
+        } else {
+          Cookies.remove('access_token')
+        }
+      })
+    },
+  },
+}
+</script>
 <style>
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',

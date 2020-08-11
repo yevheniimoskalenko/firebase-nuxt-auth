@@ -33,15 +33,36 @@ export default {
       },
     }
   },
+  computed: {
+    currentUser() {
+      const currentUser = this.$fireAuth.currentUser
+      return currentUser
+    },
+  },
   methods: {
     auth() {
-      this.$refs.form.validate((valid) => {
+      this.$refs.form.validate(async (valid) => {
         if (valid) {
-          // eslint-disable-next-line
           const form = {
             email: this.form.email,
             password: this.form.password,
           }
+          await this.$fireAuth
+            .signInWithEmailAndPassword(form.email, form.password)
+            .then((result) => {
+              this.$message({
+                message: `login is ${result.user.email}`,
+                type: 'success',
+              })
+
+              this.$router.push('/profile')
+            })
+            .catch((e) => {
+              this.$message({
+                message: `${e.message}`,
+                type: 'warning',
+              })
+            })
         } else {
           // eslint-disable-next-line
           console.log('error submit!!')
