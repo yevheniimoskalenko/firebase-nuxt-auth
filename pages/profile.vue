@@ -21,6 +21,11 @@
           <span>id: {{ t.uid }}</span>
           <p>{{ t.todo }}</p>
           <time>{{ t.date }}</time>
+          <el-button
+            icon="el-icon-delete"
+            circle
+            @click="todoDelete(index)"
+          ></el-button>
         </div>
       </div>
     </div>
@@ -36,7 +41,6 @@ export default {
       if (!user) {
         redirect('/login')
       }
-
       return { user }
     } else {
       const user = await $fireAuth.currentUser
@@ -57,7 +61,7 @@ export default {
   },
   methods: {
     async load() {
-      const todos = this.$fireDb.ref('todos')
+      const todos = this.$fireDb.ref('todos').orderByChild('date')
       try {
         const snapshot = (await todos.once('value')).val()
         this.todo = snapshot
@@ -72,6 +76,21 @@ export default {
       await this.$fireAuth
         .signOut()
         .then(() => this.$router.replace({ name: 'login' }))
+    },
+    async todoDelete(id) {
+      const todoDelete = this.$fireDb.ref(`todos/${id}`)
+      try {
+        await todoDelete.remove()
+        this.$message({
+          showClose: true,
+          message: 'this todo is deleted',
+        })
+      } catch (e) {
+        this.$message({
+          message: `${e.message}`,
+          type: 'warning',
+        })
+      }
     },
     async addTodo() {
       const todos = this.$fireDb.ref('todos')
