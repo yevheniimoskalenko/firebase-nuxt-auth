@@ -1,7 +1,6 @@
 <template>
   <div>
     <div v-if="user" class="email">
-      p
       <span>
         <i class="el-icon-user"></i>
         {{ user.email }}
@@ -18,7 +17,11 @@
         </el-form>
       </div>
       <div class="todo-list">
-        <div class="todo-item"></div>
+        <div v-for="(t, index) in todo" :key="index" class="todo-item">
+          <span>id: {{ t.uid }}</span>
+          <p>{{ t.todo }}</p>
+          <time>{{ t.date }}</time>
+        </div>
       </div>
     </div>
   </div>
@@ -33,6 +36,7 @@ export default {
       if (!user) {
         redirect('/login')
       }
+
       return { user }
     } else {
       const user = await $fireAuth.currentUser
@@ -45,9 +49,25 @@ export default {
     return {
       form: { todo: '' },
       rules: {},
+      todo: {},
     }
   },
+  mounted() {
+    this.load()
+  },
   methods: {
+    async load() {
+      const todos = this.$fireDb.ref('todos')
+      try {
+        const snapshot = (await todos.once('value')).val()
+        this.todo = snapshot
+      } catch (e) {
+        this.$message({
+          message: `${e.message}`,
+          type: 'warning',
+        })
+      }
+    },
     async logOut() {
       await this.$fireAuth
         .signOut()
