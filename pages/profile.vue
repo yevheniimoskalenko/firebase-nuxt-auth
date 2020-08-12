@@ -16,7 +16,7 @@
           </el-form-item>
         </el-form>
       </div>
-      <div class="todo-list">
+      <div v-loading="loading" class="todo-list">
         <div v-for="(t, index) in todo" :key="index" class="todo-item">
           <span>id: {{ t.uid }}</span>
           <p>{{ t.todo }}</p>
@@ -26,8 +26,29 @@
             circle
             @click="todoDelete(index)"
           ></el-button>
+          <el-button
+            icon="el-icon-edit"
+            circle
+            @click="edit(index)"
+          ></el-button>
         </div>
       </div>
+      <el-dialog
+        title="Tips"
+        :visible.sync="dialogVisible"
+        width="30%"
+        :before-close="handleClose"
+      >
+        <el-form ref="form" :rules="rules" :model="form">
+          <el-form-item prop="todo">
+            <el-input v-model="form.edit" placeholder="new todo" />
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">Cancel</el-button>
+          <el-button type="primary" @click="editTodo">Confirm</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -51,20 +72,42 @@ export default {
   },
   data() {
     return {
-      form: { todo: '' },
+      form: { todo: '', edit: '' },
+      loading: false,
+      dialogVisible: false,
       rules: {},
       todo: {},
+      item: null,
     }
   },
   mounted() {
     this.load()
   },
   methods: {
+    edit(item) {
+      this.item = item
+      this.dialogVisible = true
+    },
     async load() {
       const todos = this.$fireDb.ref('todos').orderByChild('date')
       try {
+        this.loading = true
         const snapshot = (await todos.once('value')).val()
         this.todo = snapshot
+      } catch (e) {
+        this.$message({
+          message: `${e.message}`,
+          type: 'warning',
+        })
+      } finally {
+        this.loading = false
+      }
+    },
+    async editTodo() {
+      const todo = this.$fireDb.ref(`todos/${this.item}`)
+      try {
+        await todo.update({ todo: this.form.edit })
+        this.dialogVisible = false
       } catch (e) {
         this.$message({
           message: `${e.message}`,
@@ -91,6 +134,13 @@ export default {
           type: 'warning',
         })
       }
+    },
+    handleClose(done) {
+      this.$confirm('Are you sure to close this dialog?')
+        .then((_) => {
+          done()
+        })
+        .catch((_) => {})
     },
     async addTodo() {
       const todos = this.$fireDb.ref('todos')
